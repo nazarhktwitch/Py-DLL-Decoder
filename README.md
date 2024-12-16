@@ -1,4 +1,4 @@
-# Py-DLL-Decoder
+# Py DLL Decoder
 
 This application allows users to analyze and disassemble DLL files. It provides basic insights into the structure of DLL files, including imported and exported functions, and offers a basic disassembly feature for exported functions.
 
@@ -12,6 +12,9 @@ This application allows users to analyze and disassemble DLL files. It provides 
 - **Disassemble Functions**:
   - Disassemble the first 64 bytes of exported functions using the Capstone library.
   - Automatically detect the architecture (32-bit or 64-bit) for accurate disassembly.
+- **Dissasambler with Popular Decompilers**:
+  - Integrate with online tools like Dogbolt to analyze DLLs using multiple decompilers (e.g., angr, Binary Ninja, Ghidra, and Hex-Rays).
+  - Upload DLLs directly and retrieve analysis results for different decompilers.
 
 ## Requirements
 
@@ -22,6 +25,7 @@ To run this application, ensure you have the following installed:
   - `pefile`
   - `capstone`
   - `PySide6`
+  - `requests`
 
 ## Installation
 
@@ -49,13 +53,14 @@ Or from requirements.txt:
 1. Run the application:
 
    ```bash
-   python decoder.py
+   python dll_decoder.py
    ```
 
 2. Use the GUI to:
    - Load a DLL file by clicking **Open DLL**.
    - Analyze the DLL by clicking **Analyze DLL**.
    - Disassemble exported functions by clicking **Disassemble Functions**.
+   - Upload DLL to popular decompilers and view results by clicking **Dissasambler with Popular Decompilers**.
 
 ## How It Works
 
@@ -70,6 +75,16 @@ Or from requirements.txt:
 
 - The application uses the `capstone` library to disassemble machine code of exported functions.
 - Automatically detects the architecture (32-bit or 64-bit) based on the PE file header.
+
+### Dissasambler with Popular Decompilers
+
+- The application integrates with the Dogbolt platform using the `requests` library.
+- DLL files are uploaded to the service, and results are fetched for the following decompilers:
+  - angr
+  - Binary Ninja
+  - Ghidra
+  - Hex-Rays
+- Results are displayed in the application for comparison and further analysis.
 
 ## Limitations
 
