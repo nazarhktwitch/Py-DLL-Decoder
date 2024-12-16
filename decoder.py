@@ -1,5 +1,6 @@
 import pefile
 import sys
+import requests
 from capstone import Cs, CS_ARCH_X86, CS_MODE_32, CS_MODE_64
 from PySide6.QtWidgets import (QApplication, QMainWindow, QFileDialog, QTextEdit, QVBoxLayout, QPushButton, QWidget)
 from PySide6.QtGui import QTextCursor
@@ -21,11 +22,15 @@ class DLLAnalyzerApp(QMainWindow):
         self.decompile_button = QPushButton("Disassemble Functions")
         self.decompile_button.clicked.connect(self.disassemble_functions)
 
+        self.decompiler_button = QPushButton("Disassembler with Popular Decompilers")
+        self.decompiler_button.clicked.connect(self.decompiler_with_popular_tools)
+
         layout = QVBoxLayout()
         layout.addWidget(self.text_edit)
         layout.addWidget(self.open_button)
         layout.addWidget(self.analyze_button)
         layout.addWidget(self.decompile_button)
+        layout.addWidget(self.decompiler_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -126,6 +131,36 @@ class DLLAnalyzerApp(QMainWindow):
 
         except Exception as e:
             self.text_edit.append(f"[ERROR] Failed to disassemble functions: {e}\n")
+
+    def decompiler_with_popular_tools(self):
+        if not self.file_path:
+            self.text_edit.append("[ERROR] No file loaded. Please open a DLL file first.\n")
+            return
+
+        try:
+            # Upload the DLL to the decompiler service
+            with open(self.file_path, 'rb') as f:
+                files = {'file': (self.file_path, f, 'application/octet-stream')}
+                response = requests.post("https://dogbolt.org/decompile", files=files)
+
+            # Check if the response is successful
+            if response.status_code == 200:
+                # Parse and display the decompiled outputs
+                result = response.json()  # Assuming the response is in JSON format
+                if result.get('status') == 'success':
+                    self.text_edit.append("\n[+] Decompiler Results:")
+
+                    for tool in ['angr', 'binaryninja', 'ghidra', 'hex-rays']:
+                        self.text_edit.append(f"\n[+] {tool.capitalize()} Decompilation:")
+                        self.text_edit.append(result.get(tool, 'No decompilation result available.'))
+
+                else:
+                    self.text_edit.append("[ERROR] Decompilation failed.")
+            else:
+                self.text_edit.append(f"[ERROR] Failed to connect to decompiler service. Status code: {response.status_code}")
+                
+        except Exception as e:
+            self.text_edit.append(f"[ERROR] An error occurred while requesting decompilation: {e}\n")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
