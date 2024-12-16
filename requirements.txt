@@ -1,4 +1,4 @@
 pefile
 PySide6
 capstone
-requests
+distorm
